@@ -144,6 +144,49 @@ class TachesController extends Controller
     }
     
 
+    public function updateStatut(Request $request)
+    {
+        // Validation des données de la requête
+        $validatedData = $request->validate([
+            'id' => 'required|integer|exists:taches,id', // ID de la tâche
+        ]);
+    
+        try {
+            // Récupérer le statut actuel de la tâche
+            $tache = DB::table('taches')->where('id', $validatedData['id'])->first();
+    
+            if (!$tache) {
+                return back()->with('error', 'La tâche n\'a pas été trouvée.');
+            }
+    
+            $nouveauStatut = null;
+    
+            // Vérification du statut actuel et détermination du nouveau statut
+            if ($tache->statut === 'non commencé') {
+                $nouveauStatut = 'en cours';
+            } elseif ($tache->statut === 'en cours') {
+                $nouveauStatut = 'terminé';
+            } elseif ($tache->statut === 'terminé') {
+                return back()->with('error', 'La tâche est déjà terminée et son statut ne peut plus être modifié.');
+            }
+    
+            // Si un changement de statut est déterminé, mettre à jour dans la base de données
+            if ($nouveauStatut) {
+                DB::table('taches')
+                    ->where('id', $validatedData['id'])
+                    ->update(['statut' => $nouveauStatut, 'updated_at' => now()]);
+            }
+    
+            // Retourner avec un message de succès
+            return back()->with('success', 'Le statut de la tâche a été mis à jour avec succès.');
+        } catch (\Exception $e) {
+            // Gérer les erreurs
+            return back()->with('error', 'Une erreur est survenue lors de la mise à jour du statut.');
+        }
+    }
+    
+
+
     /**
      * Update the specified resource in storage.
      */

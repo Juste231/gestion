@@ -116,6 +116,33 @@
                                             </td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">
                                                 <div class="flex space-x-2">
+                                                        <!-- Formulaire pour changer le statut -->
+                                            @if($projet->statut === 'non commencé')
+                                            <!-- Icône d'entrée pour changer en "en cours" -->
+                                            <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                <input type="hidden" name="status" value="en cours">
+                                                <button type="submit" class="text-yellow-500 hover:text-yellow-700">
+                                                    <i class="fas fa-sign-in-alt"></i> <!-- Icône d'entrée -->
+                                                </button>
+                                            </form>
+                                            @elseif($projet->statut === 'en cours')
+                                                <!-- Icône de check pour changer en "terminé" -->
+                                                <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                    <input type="hidden" name="status" value="terminé">
+                                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                                        <i class="fas fa-check"></i> <!-- Icône de check -->
+                                                    </button>
+                                                </form>
+                                            @elseif($projet->statut === 'terminé')
+                                                <!-- Texte "Terminé" en vert, non cliquable -->
+                                                <span class="text-green-500 font-bold">Terminé</span> <!-- Texte coloré "Terminé" -->
+                                            @endif
                                                     <!-- Modifier -->
                                                     <form action="{{ route('taches.edit') }}" method="GET" class="inline">
                                                         @csrf
