@@ -116,58 +116,72 @@
                                             </td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">
                                                 <div class="flex space-x-2">
-                                                        <!-- Formulaire pour changer le statut -->
-                                            @if($projet->statut === 'non commencé')
-                                            <!-- Icône d'entrée pour changer en "en cours" -->
-                                            <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                <input type="hidden" name="status" value="en cours">
-                                                <button type="submit" class="text-yellow-500 hover:text-yellow-700">
-                                                    <i class="fas fa-sign-in-alt"></i> <!-- Icône d'entrée -->
-                                                </button>
-                                            </form>
-                                            @elseif($projet->statut === 'en cours')
-                                                <!-- Icône de check pour changer en "terminé" -->
-                                                <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                    <input type="hidden" name="status" value="terminé">
-                                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
-                                                        <i class="fas fa-check"></i> <!-- Icône de check -->
-                                                    </button>
-                                                </form>
-                                            @elseif($projet->statut === 'terminé')
-                                                <!-- Texte "Terminé" en vert, non cliquable -->
-                                                <span class="text-green-500 font-bold">Terminé</span> <!-- Texte coloré "Terminé" -->
-                                            @endif
-                                                    <!-- Modifier -->
-                                                    <form action="{{ route('taches.edit') }}" method="GET" class="inline">
-                                                        @csrf
-                                                        <input type="hidden" name="tache_id" value="{{ $tache->id }}">
-                                                        <button type="submit" class="text-blue-500 hover:text-blue-700">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                    </form>
-                                                    <!-- Supprimer -->
-                                                    <form action="{{ route('taches.destroy') }}" method="POST" id="delete-form-{{ $tache->id }}">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <input type="hidden" name="tache_id" value="{{ $tache->id }}">
-                                                        <button type="button" class="text-red-500 hover:text-red-700" onclick="confirmDeletion({{ $tache->id }}, '{{ $tache->titre }}')">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </button>
-                                                    </form>
-                                                    
-                                                    <!-- Assigner -->
-                                                    <a href="" 
-                                                       class="text-green-500 hover:text-green-700">
-                                                        <i class="fas fa-user-plus"></i>
-                                                    </a>
+                                                    @if($tache->statut === 'non commencé')
+                                                        <!-- Icône d'entrée pour changer en "en cours" -->
+                                                        <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block" id="statut-form-{{ $tache->id }}-en-cours">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="id" value="{{ $tache->id }}">
+                                                            <input type="hidden" name="status" value="en cours">
+                                                            <button type="button" class="text-yellow-500 hover:text-yellow-700" onclick="confirmStatusChange('en cours', '{{ $tache->titre }}', 'statut-form-{{ $tache->id }}-en-cours')">
+                                                                <i class="fas fa-sign-in-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                        <!-- Modifier -->
+                                                        <form action="{{ route('taches.edit') }}" method="GET" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="tache_id" value="{{ $tache->id }}">
+                                                            <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                        </form>
+                                                        <!-- Supprimer -->
+                                                        <form action="{{ route('taches.destroy') }}" method="POST" id="delete-form-{{ $tache->id }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input type="hidden" name="tache_id" value="{{ $tache->id }}">
+                                                            <button type="button" class="text-red-500 hover:text-red-700" onclick="confirmDeletion({{ $tache->id }}, '{{ $tache->titre }}')">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                        <!-- Assigner -->
+                                                        <a href="" class="text-green-500 hover:text-green-700">
+                                                            <i class="fas fa-user-plus"></i>
+                                                        </a>
+                                                    @elseif($tache->statut === 'en cours')
+                                                        <!-- Icône de check pour changer en "terminé" -->
+                                                        <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block" id="statut-form-{{ $tache->id }}-termine">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="id" value="{{ $tache->id }}">
+                                                            <input type="hidden" name="status" value="terminé">
+                                                            <button type="button" class="text-green-500 hover:text-green-700" onclick="confirmStatusChange('terminé', '{{ $tache->titre }}', 'statut-form-{{ $tache->id }}-termine')">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        </form>
+                                                        <!-- Modifier -->
+                                                        <form action="{{ route('taches.edit') }}" method="GET" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="tache_id" value="{{ $tache->id }}">
+                                                            <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                        </form>
+                                                        <!-- Supprimer -->
+                                                        <form action="{{ route('taches.destroy') }}" method="POST" id="delete-form-{{ $tache->id }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input type="hidden" name="tache_id" value="{{ $tache->id }}">
+                                                            <button type="button" class="text-red-500 hover:text-red-700" onclick="confirmDeletion({{ $tache->id }}, '{{ $tache->titre }}')">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                    @elseif($tache->statut === 'terminé')
+                                                        <!-- Texte "Terminé" -->
+                                                        <span class="text-green-500 font-bold">Terminé</span>
+                                                    @endif
                                                 </div>
-                                            </td>
+                                            </td>                                            
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -193,6 +207,14 @@
             if (confirmation) {
                 // Soumettre le formulaire en cas de confirmation
                 document.getElementById('delete-form-' + tacheId).submit();
+            }
+        }
+
+        function confirmStatusChange(newStatus, taskTitle, formId) {
+            const confirmation = confirm(`Êtes-vous sûr de vouloir changer le statut de la tâche "${taskTitle}" en "${newStatus}" ?`);
+            if (confirmation) {
+                // Soumettre le formulaire en cas de confirmation
+                document.getElementById(formId).submit();
             }
         }
     </script>
