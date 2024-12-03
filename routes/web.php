@@ -30,7 +30,8 @@ Route::delete('/taches/destroy', [TachesController::class, 'destroy'])->name('ta
 Route::get('/taches/edit', [TachesController::class, 'edit'])->name('taches.edit');
 Route::put('/taches/update', [TachesController::class, 'update'])->name('taches.update');
 Route::patch('/taches/update-statut', [TachesController::class, 'updateStatut'])->name('taches.updateStatut');
-
+Route::post('/taches/assign', [TachesController::class, 'editassign'])->name('taches.editassign');
+Route::patch('/taches/update-assign', [TachesController::class, 'assign'])->name('taches.updateassign');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');

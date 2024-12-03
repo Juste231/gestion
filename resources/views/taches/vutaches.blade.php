@@ -144,10 +144,15 @@
                                                                 <i class="fas fa-trash-alt"></i>
                                                             </button>
                                                         </form>
-                                                        <!-- Assigner -->
-                                                        <a href="" class="text-green-500 hover:text-green-700">
-                                                            <i class="fas fa-user-plus"></i>
-                                                        </a>
+                                                        <!-- Bouton pour assigner un utilisateur à la tâche -->
+                                                        <form action="{{ route('taches.editassign') }}" method="POST" class="inline-block">
+                                                            @csrf
+                                                            <input type="hidden" name="tache_id" value="{{ $tache->id }}"> <!-- Champ caché pour l'ID de la tâche -->
+                                                            <button type="submit" class="text-green-500 hover:text-green-700">
+                                                                <i class="fas fa-user-plus"></i>
+                                                            </button>
+                                                        </form>
+
                                                     @elseif($tache->statut === 'en cours')
                                                         <!-- Icône de check pour changer en "terminé" -->
                                                         <form action="{{ route('taches.updateStatut') }}" method="POST" class="inline-block" id="statut-form-{{ $tache->id }}-termine">

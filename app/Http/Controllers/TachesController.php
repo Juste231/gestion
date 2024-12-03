@@ -113,6 +113,33 @@ class TachesController extends Controller
         return view('taches.vutaches', compact('taches'));
     }
     
+    public function editassign(Request $request)
+    {
+        // Récupérer l'ID de la tâche depuis le champ caché du formulaire
+        $tacheId = $request->input('tache_id');
+        
+        // Récupérer la tâche et l'utilisateur assigné via une jointure
+        $tache = DB::table('taches')
+                   ->leftJoin('users', 'taches.assigne_a', '=', 'users.id')
+                   ->select('taches.*', 'users.name as user_name', 'users.id as user_id')
+                   ->where('taches.id', $tacheId)
+                   ->first();
+        
+        // Vérifier si la tâche existe
+        if (!$tache) {
+            return redirect()->route('taches.show')->with('error', 'Tâche non trouvée.');
+        }
+        
+        // Récupérer tous les utilisateurs pour afficher dans le formulaire de sélection
+        $users = DB::table('users')->get();
+    
+        // Rediriger vers la page de modification de l'assignation de la tâche
+        return view('taches.assign', [
+            'tache' => $tache,
+            'users' => $users, // Ajouter les utilisateurs à la vue
+        ]);
+    }
+
     
 
     /**
@@ -143,6 +170,38 @@ class TachesController extends Controller
         ]);
     }
     
+
+    public function assign(Request $request)
+    {
+        // Validation des données
+        $request->validate([
+            'user_id' => 'nullable|exists:users,id', // Assurer que l'ID utilisateur existe dans la table users
+            'tache_id' => 'required|exists:taches,id', // Vérifier que la tâche existe
+        ]);
+    
+        // Utilisation de DB pour mettre à jour l'assignation
+        DB::transaction(function () use ($request) {
+            // Mise à jour de l'assignation de la tâche
+            DB::table('taches')
+                ->where('id', $request->tache_id)
+                ->update(['assigne_a' => $request->user_id]);
+    
+            // Si aucune assignation (utilisateur non sélectionné), on met null
+            if (!$request->user_id) {
+                DB::table('taches')
+                    ->where('id', $request->tache_id)
+                    ->update(['assigne_a' => null]);
+            }
+        });
+    
+        // Retourner à la page de la tâche avec un message de succès
+        return redirect()->route('taches.show', ['tache' => $request->tache_id])
+                         ->with('success', 'Assignation modifiée avec succès.');
+    }
+    
+    
+    
+
 
     public function updateStatut(Request $request)
     {
@@ -185,7 +244,7 @@ class TachesController extends Controller
         }
     }
     
-
+    
 
     /**
      * Update the specified resource in storage.
