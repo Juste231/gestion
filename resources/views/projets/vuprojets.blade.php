@@ -96,36 +96,42 @@
                                             </td>
 
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200 flex space-x-2">
-                                                @if($projet->statut !== 'terminé')
-                                                <form action="{{ route('projets.edit') }}" method="GET">
-                                                    @csrf
-                                                    <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </form>
+                                                @if($projet->statut === 'terminé')
+                                                    <!-- Affichage du texte "Terminé" lorsque le projet est terminé -->
+                                                    <span class="text-green-500 font-bold">Terminé</span>
+                                                @else
+                                                    <!-- Bouton Éditer -->
+                                                    <form action="{{ route('projets.edit') }}" method="GET">
+                                                        @csrf
+                                                        <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                        <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    </form>
+                                            
+                                                    <!-- Formulaire pour changer le statut -->
+                                                    <form action="{{ route('projets.updateStatus') }}" method="POST" onsubmit="return confirmStatusChange('{{ $projet->titre }}', '{{ $projet->statut }}');">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                        <input type="hidden" name="status" value="{{ $projet->statut == 'en cours' ? 'terminé' : 'en cours' }}">
+                                                        <button type="submit" class="text-green-500 hover:text-green-700">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </button>
+                                                    </form>
+                                            
+                                                    <!-- Formulaire pour supprimer -->
+                                                    <form action="{{ route('projets.destroy') }}" method="POST" onsubmit="return confirmDelete('{{ $projet->titre }}');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                        <button type="submit" class="text-red-500 hover:text-red-700">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
                                                 @endif
-
-                                                    <!-- Icône Check-Circle pour confirmer le statut -->
-                                                <form action="{{ route('projets.updateStatus') }}" method="POST" onsubmit="return confirmStatusChange('{{ $projet->titre }}', '{{ $projet->statut }}');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                    <input type="hidden" name="status" value="{{ $projet->statut == 'en cours' ? 'terminé' : 'en cours' }}">
-                                                    <button type="submit" class="text-green-500 hover:text-green-700">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </button>
-                                                </form>
-                                                
-                                                <form action="{{ route('projets.destroy') }}" method="POST" onsubmit="return confirmDelete('{{ $projet->titre }}');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                    <button type="submit" class="text-red-500 hover:text-red-700">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
                                             </td>
+                                            
                                         </tr>
                                     @endforeach
                                 </tbody>
