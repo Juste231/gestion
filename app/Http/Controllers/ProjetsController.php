@@ -65,31 +65,31 @@ class ProjetsController extends Controller
     public function show(Request $request)
     {
         $userId = Auth::id();
-    
+
         // Récupérer les paramètres de recherche et de filtrage
         $search = $request->input('search');
         $statut = $request->input('statut');
-    
+
         // Construction de la requête
         $query = DB::table('projets')->where('userp_id', $userId);
-    
+
         // Filtrage par titre (recherche)
         if ($search) {
             $query->where('titre', 'like', "%{$search}%");
         }
-    
+
         // Filtrage par statut
         if ($statut) {
             $query->where('statut', $statut);
         }
-    
+
         // Pagination avec les résultats filtrés
         $projets = $query->paginate(10);
-    
+
         return view('projets.vuprojets', compact('projets'));
     }
-    
-    
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -100,22 +100,22 @@ class ProjetsController extends Controller
         $validatedData = $request->validate([
             'id' => 'required|integer|exists:projets,id', // ID obligatoire et doit exister dans la table projets
         ]);
-    
+
         // Récupérer l'ID du projet
         $projetId = $validatedData['id'];
-    
+
         // Récupérer les informations du projet
         $projet = DB::table('projets')->where('id', $projetId)->first();
-    
+
         // Vérifier si le projet existe (cette étape est redondante grâce à la validation)
         if (!$projet) {
             return redirect()->route('projets.show')->with('error', 'Projet non trouvé.');
         }
-    
+
         // Retourner la vue avec les informations du projet
         return view('projets.projetsedit', compact('projet'));
     }
-    
+
 
     /**
      * Update the specified resource in storage.
@@ -163,7 +163,7 @@ class ProjetsController extends Controller
     }
 }
 
-    
+
 
     public function updateStatus(Request $request)
     {
@@ -171,31 +171,31 @@ class ProjetsController extends Controller
             // Utilisation de DB pour trouver et mettre à jour le projet
             $projetId = $request->input('id');
             $newStatus = $request->input('status');
-    
+
             // Validation du statut
             if (!in_array($newStatus, ['en cours', 'terminé'])) {
                 return redirect()->route('projets.show')->with('error', 'Statut invalide.');
             }
-    
+
             // Mise à jour via DB
             $updated = DB::table('projets')
                         ->where('id', $projetId)
                         ->update(['statut' => $newStatus]);
-    
+
             // Vérification si la mise à jour a réussi
             if ($updated) {
                 return redirect()->route('projets.show')->with('success', 'Statut mis à jour avec succès.');
             }
-    
+
             // Si aucune ligne n'a été mise à jour
             return redirect()->route('projets.show')->with('error', 'Aucun projet trouvé ou statut déjà mis à jour.');
-            
+
         } catch (\Exception $e) {
             // En cas d'erreur
             return redirect()->route('projets.show')->with('error', 'Erreur lors de la mise à jour du statut.');
         }
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -205,12 +205,12 @@ class ProjetsController extends Controller
         try {
             // Trouver l'ID du projet à supprimer
             $projetId = $request->id;
-    
-   
+
+
             $projet = DB::table('projets')->where('id', $projetId)->first();
 
             DB::table('projets')->where('id', $projetId)->delete();
-    
+
             // Message de succès
             return redirect()->route('projets.show')->with('success', 'Le projet "' . $projet->titre . '" a été supprimé avec succès.');
         } catch (\Exception $e) {
