@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projets/edit', [ProjetsController::class, 'edit'])->name('projets.edit');
 
     // Tâches routes
-    Route::get('/taches', [TachesController::class, 'index'])->name('taches.index');
+
     Route::get('/taches/create', [TachesController::class, 'create'])->name('taches.create');
     Route::post('/taches', [TachesController::class, 'store'])->name('taches.store');
     Route::get('/taches/show', [TachesController::class, 'show'])->name('taches.show');
@@ -34,6 +34,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/taches/assign', [TachesController::class, 'editassign'])->name('taches.editassign');
     Route::patch('/taches/update-assign', [TachesController::class, 'assign'])->name('taches.updateassign');
 });
+
+//admin
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/taches', [TachesController::class, 'index'])->name('taches.index');
+});
+
+
+
+
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
