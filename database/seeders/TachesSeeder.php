@@ -20,6 +20,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'élevée',
                 'projet_id' => 1,
+                'assigne_a' => 2,  
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -29,6 +30,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'terminé',
                 'priorite' => 'moyenne',
                 'projet_id' => 1,
+                'assigne_a' => 2,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -39,6 +41,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'faible',
                 'projet_id' => 2,
+                'assigne_a' => 3,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -48,6 +51,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'élevée',
                 'projet_id' => 2,
+                'assigne_a' => 3,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -58,6 +62,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'terminé',
                 'priorite' => 'moyenne',
                 'projet_id' => 3,
+                'assigne_a' => 2,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -67,6 +72,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'faible',
                 'projet_id' => 3,
+                'assigne_a' => 2,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -77,6 +83,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'élevée',
                 'projet_id' => 4,
+                'assigne_a' => 4,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -86,6 +93,7 @@ class TachesSeeder extends Seeder
                 'statut' => 'en cours',
                 'priorite' => 'moyenne',
                 'projet_id' => 4,
+                'assigne_a' => 4,  // Assigner la tâche à l'utilisateur avec ID = 1 (Admin)
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

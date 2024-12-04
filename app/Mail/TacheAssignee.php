@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -6,6 +8,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+
+
 
 class TacheAssignee extends Mailable
 {
@@ -39,13 +43,14 @@ class TacheAssignee extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.tache_assignee',  // Votre vue Blade pour l'email
-            data: [
+            view: 'emails.tache_assigne',  // Votre vue Blade pour l'email
+            with: [
                 'task' => $this->task,  // Passer la tâche à la vue
                 'user' => $this->user,  // Passer l'utilisateur à la vue
             ]
         );
     }
+    
 
     /**
      * Get the attachments for the message.

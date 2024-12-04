@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 USE Illuminate\Support\Facades\DB;
+use App\Mail\TacheAssignee;
+use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Http\Request;
 
@@ -198,6 +200,10 @@ class TachesController extends Controller
     
         // Utilisation de DB pour mettre à jour l'assignation
         DB::transaction(function () use ($request) {
+            // Récupérer la tâche et l'utilisateur
+            $task = DB::table('taches')->find($request->tache_id);
+            $user = DB::table('users')->find($request->user_id);
+    
             // Mise à jour de l'assignation de la tâche
             DB::table('taches')
                 ->where('id', $request->tache_id)
@@ -208,6 +214,12 @@ class TachesController extends Controller
                 DB::table('taches')
                     ->where('id', $request->tache_id)
                     ->update(['assigne_a' => null]);
+            }
+    
+            // Si un utilisateur est assigné, envoyer l'e-mail
+            if ($request->user_id) {
+                // Envoyer l'e-mail à l'utilisateur assigné
+                Mail::to($user->email)->send(new TacheAssignee($task, $user));
             }
         });
     
