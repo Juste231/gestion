@@ -1,3 +1,4 @@
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -10,19 +11,36 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <!-- Message de succès -->
-                    @if (session('success'))
-                        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
 
-                    <!-- Message d'erreur -->
-                    @if (session('error'))
-                        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
-                            {{ session('error') }}
+                    <!-- Formulaire de recherche et de filtrage -->
+                    <form method="GET" action="{{ route('taches.index') }}" class="mb-4">
+                        <div class="flex items-center space-x-4">
+                            <!-- Champ de recherche -->
+                            <input 
+                                type="text" 
+                                name="search" 
+                                placeholder="Rechercher..." 
+                                value="{{ request('search') }}" 
+                                class="w-full px-4 py-2 rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200"
+                            >
+
+                            <!-- Filtre par statut -->
+                            <select 
+                                name="statut" 
+                                class="px-4 py-2 rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                                <option value="">Tous les statuts</option>
+                                <option value="non commencé" {{ request('statut') == 'non commencé' ? 'selected' : '' }}>Non commencé</option>
+                                <option value="en cours" {{ request('statut') == 'en cours' ? 'selected' : '' }}>En cours</option>
+                                <option value="terminé" {{ request('statut') == 'terminé' ? 'selected' : '' }}>Terminé</option>
+                            </select>
+
+                            <!-- Bouton de recherche -->
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">
+                                Rechercher
+                            </button>
                         </div>
-                    @endif
+                    </form>
+
 
                     <!-- Tableau des tâches -->
                     @if($taches->count())
@@ -155,7 +173,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         function confirmDeletion(tacheId, tacheTitre) {
             const confirmation = confirm('Êtes-vous sûr de vouloir supprimer la tâche : ' + tacheTitre + ' ?');

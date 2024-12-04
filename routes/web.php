@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjetsController;
 use App\Http\Controllers\TachesController;
+use App\Http\Controllers\UsersControler;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
@@ -39,6 +40,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/taches', [TachesController::class, 'index'])->name('taches.index');
     Route::get('/projets', [ProjetsController::class, 'index'])->name('projets.index');
+    Route::get('/users', [UsersControler::class, 'index'])->name('users.index');
+    Route::patch('/users/role', [UsersControler::class, 'updateRole'])->name('users.updateRole');
+    Route::delete('/users/destry', [UsersControler::class, 'destroy'])->name('users.destroy');
+    Route::get('/users/create', [UsersControler::class, 'create'])->name('users.create');
+    Route::post('/users', [UsersControler::class, 'store'])->name('users.store');
+
 });
 
 

@@ -15,24 +15,49 @@ class TachesController extends Controller
      */
    
 
-    public function index()
-    {
-        $taches = DB::table('taches')
-            ->leftJoin('projets', 'taches.projet_id', '=', 'projets.id')
-            ->leftJoin('users', 'taches.assigne_a', '=', 'users.id')
-            ->select(
-                'taches.id as tache_id',
-                'taches.titre as tache_titre',
-                'taches.description',
-                'taches.statut',
-                'taches.priorite',
-                'projets.titre as projet_titre',
-                'users.name as user_name'
-            )
-            ->paginate(10); 
-    
-        return view('taches.alltaches', compact('taches'));
-    }
+     public function index(Request $request)
+     {
+         // Récupérer les paramètres de recherche et de filtrage
+         $search = $request->input('search');
+         $statut = $request->input('statut');
+     
+         // Construire la requête de base
+         $query = DB::table('taches')
+             ->join('projets', 'taches.projet_id', '=', 'projets.id')
+             ->leftJoin('users', 'taches.assigne_a', '=', 'users.id')
+             ->select(
+                 'taches.id as tache_id',
+                 'taches.titre as tache_titre',
+                 'taches.description',
+                 'taches.statut',
+                 'taches.priorite',
+                 'projets.titre as projet_titre',
+                 'users.name as user_name'
+             );
+     
+         // Appliquer la recherche dans plusieurs colonnes
+         if ($search) {
+             $query->where(function ($q) use ($search) {
+                 $q->where('taches.titre', 'like', "%$search%")
+                   ->orWhere('taches.description', 'like', "%$search%")
+                   ->orWhere('projets.titre', 'like', "%$search%")
+                   ->orWhere('users.name', 'like', "%$search%");
+             });
+         }
+     
+         // Appliquer le filtre de statut
+         if ($statut) {
+             $query->where('taches.statut', $statut);
+         }
+     
+         // Ajouter la pagination
+         $taches = $query->paginate(10);
+     
+         // Retourner la vue avec les tâches paginées
+         return view('taches.alltaches', compact('taches'));
+     }
+     
+     
     
 
     /**

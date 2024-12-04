@@ -32,6 +32,10 @@
                         {{ __('Tout les Projets') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        {{ __('Utilisateur') }}
+                    </x-nav-link>
+
                     @endif
                 </div>
 
@@ -109,17 +113,14 @@
                 {{ __('Tout les Projets') }}
             </x-nav-link>
 
+            <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                {{ __('Utilisateur') }}
+            </x-nav-link>
+
             @endif
-            
+
         </div>
-
-
-
-
-
-            <x-responsive-nav-link :href="route('taches.show')" :active="request()->routeIs('taches.show')">
-                {{ __('Mes Taches') }}
-            </x-responsive-nav-link>
+    
 
 
         <!-- Responsive Settings Options -->
