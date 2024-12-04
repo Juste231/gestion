@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 USE Illuminate\Support\Facades\DB;
 use App\Mail\TacheAssignee;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 use Illuminate\Http\Request;
 
@@ -314,52 +315,40 @@ class TachesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
-    {
-        // Validation des données du formulaire
-        $validatedData = $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'statut' => 'required|string|in:non commencé,en cours,terminé',
-            'priorite' => 'required|string|in:faible,moyenne,élevée',
-            'projet_id' => 'required|exists:projets,id', // Assurez-vous que le projet existe
-            'assigne_a' => 'nullable|exists:users,id', // Assurez-vous que l'utilisateur existe
-            'tache_id' => 'required|integer|exists:taches,id', // Vérifier que la tâche existe
-        ]);
+
     
-        // Récupérer l'ID de la tâche à mettre à jour
-        $tacheId = $validatedData['tache_id'];
+     public function update(Request $request)
+     {
+         try {
+             // Valider les données du formulaire
+             $validatedData = $request->validate([
+                 'id' => 'required|exists:taches',
+                 'titre' => 'required|string',
+                 'description' => 'nullable|string',
+                 'statut' => 'required|in:non commencé,en cours,terminé',
+                 'priorite' => 'required|in:faible,moyenne,élevée',
+                 'projet_id' => 'required|exists:projets,id',
+                 'assigne_a' => 'nullable|exists:users,id',
+             ]);
+     
+             // Récupérer l'ID et enlever de l'array de données
+             $id = $validatedData['id'];
+             unset($validatedData['id']);
+     
+             // Mettre à jour les informations de la tâche dans la base de données
+             DB::table('taches')
+                 ->where('id', $id)
+                 ->update($validatedData);
+     
+             // Rediriger vers la vue taches.show avec un message de succès
+             return redirect()->route('taches.show')->with('success', 'Tâche mise à jour avec succès');
+         } catch (ValidationException $e) {
+             // En cas d'échec de la validation, rediriger vers la vue d'édition avec les erreurs affichées
+             return redirect()->route('taches.edit')->withErrors($e->errors())->withInput();
+         }
+     }
     
-        // Utilisation d'un bloc try-catch pour gérer les erreurs
-        try {
-            // Récupérer la tâche à mettre à jour avec DB
-            $tache = DB::table('taches')->where('id', $tacheId)->first();
     
-            // Vérifier si la tâche existe
-            if (!$tache) {
-                return redirect()->route('taches.show')->with('error', 'Tâche non trouvée.');
-            }
-    
-            // Mettre à jour les informations de la tâche
-            DB::table('taches')->where('id', $tacheId)->update([
-                'titre' => $validatedData['titre'],
-                'description' => $validatedData['description'],
-                'statut' => $validatedData['statut'],
-                'priorite' => $validatedData['priorite'],
-                'projet_id' => $validatedData['projet_id'],
-                'assigne_a' => $validatedData['assigne_a'],
-                'updated_at' => now(), // Mettre à jour la colonne `updated_at`
-            ]);
-    
-            // Redirection avec un message de succès
-            return redirect()->route('taches.show', $tacheId)->with('success', 'Tâche mise à jour avec succès.');
-    
-        } catch (\Exception $e) {
-            // En cas d'erreur lors de la mise à jour
-            return redirect()->route('taches.edit', $tacheId)
-                             ->with('error', 'Erreur lors de la mise à jour de la tâche. Détails : ' . $e->getMessage());
-        }
-    }
     
 
     /**
