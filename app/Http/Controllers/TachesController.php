@@ -93,23 +93,21 @@ class TachesController extends Controller
             // Validation des données du formulaire
             $validatedData = $request->validate([
                 'titre' => 'required|string|max:255',
-                'description' => 'required|string',
+                'description' => 'nullable|string', // La description peut être optionnelle
                 'projet_id' => 'required|integer|exists:projets,id',
                 'priorite' => 'required|string|in:faible,moyen,urgent',
             ]);
-
+    
             // Récupération de l'utilisateur connecté
             $userId = Auth::id();
-
+    
             // Si l'utilisateur assigné n'est pas défini, on l'assigne à l'utilisateur connecté
-            $assigne_a = $request->input('assigne_a') ?? Auth::id();
-
-
-            //dd($assigne_a);
+            $assigne_a = $request->input('assigne_a') ?? $userId;
+    
             // Création de la tâche dans la base de données
-            DB::table('taches')->insert([
+            $tacheId = DB::table('taches')->insertGetId([
                 'titre' => $validatedData['titre'],
-                'description' => $validatedData['description'],
+                'description' => $validatedData['description'] ?? '',
                 'statut' => 'non commencé', // Statut par défaut
                 'priorite' => $validatedData['priorite'],
                 'projet_id' => $validatedData['projet_id'],
@@ -117,14 +115,27 @@ class TachesController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
-            // Redirection vers la vue de création avec un message de succès
+    
+            // Récupérer la tâche complète depuis la base de données
+            $tache = DB::table('taches')->where('id', $tacheId)->first();
+    
+            // Récupérer l'utilisateur assigné
+            $user = DB::table('users')->where('id', $assigne_a)->first();
+    
+            // Envoyer un email si l'utilisateur assigné est différent de l'utilisateur connecté
+            if ($assigne_a != $userId) {
+                // Envoyer l'email
+                Mail::to($user->email)->send(new TacheAssignee($tache, $user));
+            }
+    
+            // Redirection avec un message de succès
             return redirect()->route('taches.create')->with('success', 'Tâche créée avec succès.');
         } catch (\Exception $e) {
             // Gérer les erreurs et retourner à la vue avec un message d'erreur
             return redirect()->route('taches.create')->with('error', 'Erreur lors de la création de la tâche : ' . $e->getMessage());
         }
     }
+    
 
 
     /**
