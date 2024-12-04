@@ -11,10 +11,27 @@ class TachesController extends Controller
     /**
      * Display a listing of the resource.
      */
+   
+
     public function index()
     {
-
+        $taches = DB::table('taches')
+            ->leftJoin('projets', 'taches.projet_id', '=', 'projets.id')
+            ->leftJoin('users', 'taches.assigne_a', '=', 'users.id')
+            ->select(
+                'taches.id as tache_id',
+                'taches.titre as tache_titre',
+                'taches.description',
+                'taches.statut',
+                'taches.priorite',
+                'projets.titre as projet_titre',
+                'users.name as user_name'
+            )
+            ->paginate(10); 
+    
+        return view('taches.alltaches', compact('taches'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

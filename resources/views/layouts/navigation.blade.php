@@ -23,6 +23,10 @@
                     <x-nav-link :href="route('taches.show')" :active="request()->routeIs('taches.show')">
                         {{ __('Mes Taches') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('taches.index')" :active="request()->routeIs('taches.index')">
+                        {{ __('Toute les Taches') }}
+                    </x-nav-link>
                 </div>
 
             </div>
