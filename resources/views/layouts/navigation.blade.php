@@ -27,6 +27,11 @@
                     <x-nav-link :href="route('taches.index')" :active="request()->routeIs('taches.index')">
                         {{ __('Toute les Taches') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('projets.index')" :active="request()->routeIs('projets.index')">
+                        {{ __('Tout les Projets') }}
+                    </x-nav-link>
+
                     @endif
                 </div>
 
@@ -94,6 +99,18 @@
             <x-responsive-nav-link :href="route('taches.show')" :active="request()->routeIs('taches.show')">
                 {{ __('Mes Taches') }}
             </x-responsive-nav-link>
+
+            @if (Auth::user()->role == 'admin')
+            <x-nav-link :href="route('taches.index')" :active="request()->routeIs('taches.index')">
+                {{ __('Toute les Taches') }}
+            </x-nav-link>
+
+            <x-nav-link :href="route('projets.index')" :active="request()->routeIs('projets.index')">
+                {{ __('Tout les Projets') }}
+            </x-nav-link>
+
+            @endif
+            
         </div>
 
 

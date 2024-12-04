@@ -11,10 +11,46 @@ class ProjetsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
+
+     public function index(Request $request)
+     {
+         // Récupérer les paramètres de recherche et de filtrage
+         $search = $request->input('search');
+         $statut = $request->input('statut');
+     
+         // Construire la requête de base
+         $query = DB::table('projets')
+             ->join('users', 'projets.userp_id', '=', 'users.id')
+             ->select(
+                 'projets.id',
+                 'projets.titre',
+                 'projets.description',
+                 'projets.date_limite',
+                 'projets.statut',
+                 'users.name as proprietaire'
+             );
+     
+         // Appliquer la recherche dans plusieurs colonnes
+         if ($search) {
+             $query->where(function ($q) use ($search) {
+                 $q->where('projets.titre', 'like', "%$search%")
+                   ->orWhere('projets.description', 'like', "%$search%")
+                   ->orWhere('users.name', 'like', "%$search%");
+             });
+         }
+     
+         // Appliquer le filtre de statut
+         if ($statut) {
+             $query->where('projets.statut', $statut);
+         }
+     
+         // Ajouter la pagination
+         $projets = $query->paginate(10);
+     
+         return view('projets.allprojects', compact('projets'));
+     }
+     
+    
 
     /**
      * Show the form for creating a new resource.
@@ -154,7 +190,7 @@ class ProjetsController extends Controller
         ]);
 
         // Redirection avec un message de succès
-        return redirect()->route('projets.show')->with('success', 'Projet mis à jour avec succès.');
+        return back()->with('success', 'Projet mis à jour avec succès.');
 
     } catch (\Exception $e) {
         // En cas d'erreur lors de la mise à jour
@@ -184,15 +220,15 @@ class ProjetsController extends Controller
 
             // Vérification si la mise à jour a réussi
             if ($updated) {
-                return redirect()->route('projets.show')->with('success', 'Statut mis à jour avec succès.');
+                return back()->with('success', 'Statut mis à jour avec succès.');
             }
 
             // Si aucune ligne n'a été mise à jour
-            return redirect()->route('projets.show')->with('error', 'Aucun projet trouvé ou statut déjà mis à jour.');
+            return back()->with('error', 'Aucun projet trouvé ou statut déjà mis à jour.');
 
         } catch (\Exception $e) {
             // En cas d'erreur
-            return redirect()->route('projets.show')->with('error', 'Erreur lors de la mise à jour du statut.');
+            return back()->with('error', 'Erreur lors de la mise à jour du statut.');
         }
     }
 
@@ -212,10 +248,10 @@ class ProjetsController extends Controller
             DB::table('projets')->where('id', $projetId)->delete();
 
             // Message de succès
-            return redirect()->route('projets.show')->with('success', 'Le projet "' . $projet->titre . '" a été supprimé avec succès.');
+            return back()->with('success', 'Le projet "' . $projet->titre . '" a été supprimé avec succès.');
         } catch (\Exception $e) {
             // Message d'erreur en cas d'échec
-            return redirect()->route('projets.show')->with('error', 'Une erreur est survenue lors de la suppression du projet.');
+            return back()->with('error', 'Une erreur est survenue lors de la suppression du projet.');
         }
     }
 }

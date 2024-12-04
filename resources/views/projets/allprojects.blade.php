@@ -25,10 +25,13 @@
                     @endif
 
                     <!-- Formulaire de recherche et filtrage -->
-                    <form method="GET" action="{{ route('projets.show') }}" class="mb-4 flex space-x-2">
-                        <input type="text" name="search" placeholder="Rechercher un projet"
-                               value="{{ request('search') }}"
-                               class="flex-grow px-3 py-2 border dark:bg-gray-700 dark:border-gray-600 rounded-md">
+                    <form method="GET" action="{{ route('projets.index') }}" class="mb-4 flex space-x-2">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            placeholder="Rechercher (titre, description, propriétaire)" 
+                            value="{{ request('search') }}" 
+                            class="flex-grow px-3 py-2 border dark:bg-gray-700 dark:border-gray-600 rounded-md">
 
                         <select name="statut" class="px-3 py-2 border dark:bg-gray-700 dark:border-gray-600 rounded-md">
                             <option value="">Tous les statuts</option>
@@ -59,11 +62,11 @@
                                 <tbody>
                                     @foreach ($projets as $key => $projet)
                                         <tr class="border-t border-gray-300 dark:border-gray-700">
-                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ $projets->firstItem() + $key }}</td>
+                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ $loop->iteration }}</td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ $projet->titre }}</td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ Str::limit($projet->description, 50) }}</td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ \Carbon\Carbon::parse($projet->date_limite)->format('d/m/Y') }}</td>
-                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ $projet->user_name }}</td>
+                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ $projet->proprietaire }}</td>
                                             <td class="px-4 py-2 text-gray-700 dark:text-gray-200">
                                                 <span class="px-2 py-1 rounded-md
                                                     {{ $projet->statut == 'en cours' ? 'bg-blue-500 text-white' : '' }}
@@ -71,40 +74,41 @@
                                                     {{ ucfirst($projet->statut) }}
                                                 </span>
                                             </td>
-                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">
-                                                <div class="flex space-x-2">
-                                                    @if($projet->statut === 'en cours')
-                                                        <!-- Icône de check pour changer en "terminé" -->
-                                                        <form action="{{ route('projets.updateStatus') }}" method="POST" class="inline-block" id="statut-form-{{ $projet->id }}-termine">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                            <input type="hidden" name="status" value="terminé">
-                                                            <button type="button" class="text-green-500 hover:text-green-700" onclick="confirmStatusChange('terminé', '{{ $projet->titre }}', 'statut-form-{{ $projet->id }}-termine')">
-                                                                <i class="fas fa-check"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-                                                    <!-- Modifier -->
-                                                    <form action="{{ route('projets.edit') }}" method="GET" class="inline">
+                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200 flex space-x-2">
+                                                @if($projet->statut === 'terminé')
+                                                    <!-- Affichage du texte "Terminé" lorsque le projet est terminé -->
+                                                    <span class="text-green-500 font-bold">Terminé</span>
+                                                @else
+                                                    <!-- Bouton Éditer -->
+                                                    <form action="{{ route('projets.edit') }}" method="GET">
                                                         @csrf
                                                         <input type="hidden" name="id" value="{{ $projet->id }}">
                                                         <button type="submit" class="text-blue-500 hover:text-blue-700">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                     </form>
-
-                                                    <!-- Supprimer -->
-                                                    <form action="{{ route('projets.destroy') }}" method="POST" id="delete-form-{{ $projet->id }}">
+                                            
+                                                    <!-- Formulaire pour changer le statut -->
+                                                    <form action="{{ route('projets.updateStatus') }}" method="POST" onsubmit="return confirmStatusChange('{{ $projet->titre }}', '{{ $projet->statut }}');">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="id" value="{{ $projet->id }}">
+                                                        <input type="hidden" name="status" value="{{ $projet->statut == 'en cours' ? 'terminé' : 'en cours' }}">
+                                                        <button type="submit" class="text-green-500 hover:text-green-700">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </button>
+                                                    </form>
+                                            
+                                                    <!-- Formulaire pour supprimer -->
+                                                    <form action="{{ route('projets.destroy') }}" method="POST" onsubmit="return confirmDelete('{{ $projet->titre }}');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <input type="hidden" name="id" value="{{ $projet->id }}">
-                                                        <button type="button" class="text-red-500 hover:text-red-700" onclick="confirmDeletion({{ $projet->id }}, '{{ $projet->titre }}')">
+                                                        <button type="submit" class="text-red-500 hover:text-red-700">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
                                                     </form>
-                                                </div>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -117,7 +121,7 @@
 
                     <!-- Pagination -->
                     <div class="mt-4">
-                        {{ $projets->links() }}
+                        {{ $projets->appends(request()->all())->links() }}
                     </div>
                 </div>
             </div>
@@ -125,21 +129,16 @@
     </div>
 
     <script>
-        function confirmDeletion(projetId, projetTitre) {
-            const confirmation = confirm('Êtes-vous sûr de vouloir supprimer le projet : ' + projetTitre + ' ?');
-
-            if (confirmation) {
-                // Soumettre le formulaire en cas de confirmation
-                document.getElementById('delete-form-' + projetId).submit();
-            }
+        function confirmDelete(projetName) {
+            return confirm('Êtes-vous sûr de vouloir supprimer le projet "' + projetName + '" ?');
         }
 
-        function confirmStatusChange(newStatus, projectTitle, formId) {
-            const confirmation = confirm(`Êtes-vous sûr de vouloir changer le statut du projet "${projectTitle}" en "${newStatus}" ?`);
-            if (confirmation) {
-                // Soumettre le formulaire en cas de confirmation
-                document.getElementById(formId).submit();
-            }
+        function confirmStatusChange(projetName, currentStatus) {
+            const newStatus = currentStatus === 'en cours' ? 'terminé' : 'en cours';
+            const confirmation = confirm(`Voulez-vous vraiment modifier le statut du projet "${projetName}" à "${newStatus}" ?`);
+            return confirmation;
         }
     </script>
+
 </x-app-layout>
+

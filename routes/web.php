@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
 //admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/taches', [TachesController::class, 'index'])->name('taches.index');
+    Route::get('/projets', [ProjetsController::class, 'index'])->name('projets.index');
 });
 
 
